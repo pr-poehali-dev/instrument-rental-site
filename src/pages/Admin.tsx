@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import Icon from "@/components/ui/icon";
 
 const API_URL = "https://functions.poehali.dev/e8dc8261-8236-4252-aa2d-74a038fc598d";
+const UPLOAD_URL = "https://functions.poehali.dev/d3c8d5c2-27ed-4ce1-9e71-a65ca77d07d1";
 
 const CATEGORIES = [
   "Электроинструмент",
@@ -42,6 +43,10 @@ export default function Admin() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm());
 
+  // image upload
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
+
   // delete confirm
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -68,6 +73,8 @@ export default function Admin() {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm());
+    setImagePreview("");
+    setError("");
     setModalOpen(true);
   };
 
@@ -81,12 +88,47 @@ export default function Admin() {
       image: tool.image,
       description: tool.description,
     });
+    setImagePreview(tool.image || "");
+    setError("");
     setModalOpen(true);
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setEditingId(null);
+    setImagePreview("");
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError("");
+
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setImagePreview(dataUrl);
+
+      try {
+        const res = await fetch(UPLOAD_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ file: dataUrl, name: file.name, type: file.type }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Ошибка загрузки");
+        setForm((prev) => ({ ...prev, image: data.url }));
+        setImagePreview(data.url);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Не удалось загрузить фото");
+        setImagePreview("");
+      } finally {
+        setUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSave = async () => {
@@ -417,26 +459,60 @@ export default function Admin() {
                 </div>
               </div>
 
-              {/* Image */}
+              {/* Image upload */}
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-1.5">URL изображения</label>
-                <input
-                  type="text"
-                  value={form.image}
-                  onChange={(e) => setForm({ ...form, image: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full border border-border rounded-xl px-3.5 py-2.5 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition"
-                />
-                {form.image && (
-                  <div className="mt-2 w-20 h-16 rounded-lg overflow-hidden border border-border">
-                    <img
-                      src={form.image}
-                      alt="preview"
-                      className="w-full h-full object-cover"
-                      onError={(e) => (e.currentTarget.style.display = "none")}
-                    />
-                  </div>
-                )}
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Фотография</label>
+                <label
+                  className={`flex flex-col items-center justify-center w-full border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                    uploading
+                      ? "border-border bg-secondary/30 cursor-wait"
+                      : "border-border hover:border-foreground/40 hover:bg-secondary/30"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={handleImageChange}
+                    disabled={uploading}
+                  />
+                  {imagePreview ? (
+                    <div className="relative w-full">
+                      <img
+                        src={imagePreview}
+                        alt="preview"
+                        className="w-full h-48 object-cover rounded-xl"
+                        onError={(e) => (e.currentTarget.style.display = "none")}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/0 hover:bg-black/30 transition-colors group">
+                        <span className="hidden group-hover:flex items-center gap-1.5 text-white text-sm font-semibold">
+                          <Icon name="RefreshCw" size={15} />
+                          Заменить фото
+                        </span>
+                      </div>
+                      {uploading && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40">
+                          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 py-8 px-4 text-center">
+                      {uploading ? (
+                        <>
+                          <div className="w-6 h-6 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                          <p className="text-sm text-muted-foreground">Загружаем фото...</p>
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="ImagePlus" size={28} className="text-muted-foreground" />
+                          <p className="text-sm font-medium text-foreground">Нажмите, чтобы выбрать фото</p>
+                          <p className="text-xs text-muted-foreground">JPG, PNG, WebP — до 5 МБ</p>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </label>
               </div>
 
               {/* Description */}
@@ -471,9 +547,14 @@ export default function Admin() {
               <Button
                 onClick={handleSave}
                 className="flex-1 bg-foreground text-background hover:bg-foreground/90 font-semibold gap-2"
-                disabled={saving}
+                disabled={saving || uploading}
               >
-                {saving ? (
+                {uploading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
+                    Загрузка фото...
+                  </>
+                ) : saving ? (
                   <>
                     <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
                     Сохранение...

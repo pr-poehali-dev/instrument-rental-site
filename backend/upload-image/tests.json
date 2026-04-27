@@ -1,0 +1,16 @@
+[
+  {
+    "name": "OPTIONS preflight",
+    "httpMethod": "OPTIONS",
+    "path": "/",
+    "body": null,
+    "expectedStatus": 200
+  },
+  {
+    "name": "POST without file returns 400",
+    "httpMethod": "POST",
+    "path": "/",
+    "body": {},
+    "expectedStatus": 400
+  }
+]
