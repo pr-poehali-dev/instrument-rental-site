@@ -402,9 +402,9 @@ export default function Index() {
 
           <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
-              { icon: "Phone", title: "Телефон", lines: ["+7 (XXX) XXX-XX-XX", "Звонки с 8:00 до 21:00"] },
-              { icon: "MapPin", title: "Адрес", lines: ["г. Москва, ул. Примерная, д. 1", "Пн–Вс: 8:00 – 21:00"] },
-              { icon: "MessageCircle", title: "Мессенджеры", lines: ["WhatsApp", "Telegram: @proinstrument"] },
+              { icon: "Phone", title: "Телефон", lines: ["+7 (987) 027-47-75", "Звонки с 8:00 до 21:00"] },
+              { icon: "MapPin", title: "Адрес", lines: ["с. Нагаево, ул. Михаила Дорохова 66М", "Пн–Вс: 8:00 – 21:00"] },
+              { icon: "MessageCircle", title: "Мессенджеры", lines: ["MAX"] },
             ].map((c) => (
               <div key={c.title} className="bg-card border border-border rounded-2xl p-6">
                 <div className="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center mb-4">
