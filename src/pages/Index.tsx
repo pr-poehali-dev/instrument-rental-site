@@ -414,6 +414,17 @@ export default function Index() {
                 {c.lines.map((l) => (
                   <p key={l} className="text-sm text-muted-foreground">{l}</p>
                 ))}
+                {c.title === "Мессенджеры" && (
+                  <a
+                    href="https://max.ru/89870274775"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
+                  >
+                    <Icon name="MessageCircle" size={15} />
+                    Написать в MAX
+                  </a>
+                )}
               </div>
             ))}
           </div>
