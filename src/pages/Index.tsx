@@ -414,6 +414,15 @@ export default function Index() {
                 {c.lines.map((l) => (
                   <p key={l} className="text-sm text-muted-foreground">{l}</p>
                 ))}
+                {c.title === "Телефон" && (
+                  <a
+                    href="tel:+79870274775"
+                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
+                  >
+                    <Icon name="Phone" size={15} />
+                    Позвонить
+                  </a>
+                )}
                 {c.title === "Мессенджеры" && (
                   <a
                     href="https://max.ru/89870274775"
@@ -509,7 +518,7 @@ export default function Index() {
             </div>
             ПроИнструмент
           </div>
-          <p className="text-sm text-muted-foreground">© 2024 ПроИнструмент. Прокат инструментов.</p>
+          <p className="text-sm text-muted-foreground">© 2026 ПроИнструмент. Прокат инструментов.</p>
           <div className="flex gap-4">
             {navLinks.map((l) => (
               <button key={l.id} onClick={() => scrollToSection(l.id)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
