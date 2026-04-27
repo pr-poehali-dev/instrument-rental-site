@@ -1,25 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 
-const TOOLS = [
-  { id: 1, name: "Перфоратор Bosch GBH 2-26", category: "Электроинструмент", price: 350, available: true, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/0a17f442-2be8-4971-aabe-10b1d266e144.jpg" },
-  { id: 2, name: "Болгарка DeWalt 125мм", category: "Электроинструмент", price: 280, available: true, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/0a17f442-2be8-4971-aabe-10b1d266e144.jpg" },
-  { id: 3, name: "Шуруповёрт Makita 18V", category: "Электроинструмент", price: 200, available: false, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/0a17f442-2be8-4971-aabe-10b1d266e144.jpg" },
-  { id: 4, name: "Набор ключей 24 предмета", category: "Ручной инструмент", price: 150, available: true, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/87daca41-c894-412c-a9a3-a6358177c173.jpg" },
-  { id: 5, name: "Уровень лазерный 3D", category: "Измерительный", price: 400, available: true, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/87daca41-c894-412c-a9a3-a6358177c173.jpg" },
-  { id: 6, name: "Рулетка + уровень", category: "Измерительный", price: 80, available: true, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/87daca41-c894-412c-a9a3-a6358177c173.jpg" },
-  { id: 7, name: "Лобзик Makita JV0600", category: "Электроинструмент", price: 320, available: false, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/0a17f442-2be8-4971-aabe-10b1d266e144.jpg" },
-  { id: 8, name: "Молоток кровельщика", category: "Ручной инструмент", price: 100, available: true, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/87daca41-c894-412c-a9a3-a6358177c173.jpg" },
-  { id: 9, name: "Бетономешалка 120л", category: "Строительное оборудование", price: 700, available: true, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/6c221248-6ee7-4c6f-be5d-20d8732376b9.jpg" },
-  { id: 10, name: "Строительные леса 6м", category: "Строительное оборудование", price: 900, available: true, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/6c221248-6ee7-4c6f-be5d-20d8732376b9.jpg" },
-  { id: 11, name: "Виброплита 90кг", category: "Строительное оборудование", price: 1200, available: false, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/6c221248-6ee7-4c6f-be5d-20d8732376b9.jpg" },
-  { id: 12, name: "Пила циркулярная 185мм", category: "Электроинструмент", price: 380, available: true, image: "https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/0a17f442-2be8-4971-aabe-10b1d266e144.jpg" },
-];
+const API_URL = "https://functions.poehali.dev/e8dc8261-8236-4252-aa2d-74a038fc598d";
 
-const CATEGORIES = ["Все", "Электроинструмент", "Ручной инструмент", "Измерительный", "Строительное оборудование"];
+const DEFAULT_CATEGORIES = ["Все", "Электроинструмент", "Ручной инструмент", "Измерительный", "Строительное оборудование"];
+
+interface Tool {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  available: boolean;
+  image: string;
+  description: string;
+}
 
 type Section = "catalog" | "about" | "terms" | "contacts";
 
@@ -33,6 +30,8 @@ const navLinks: { id: Section; label: string }[] = [
 const EMAIL_URL = "https://functions.poehali.dev/cacde10c-23c7-4586-920f-143e6d430786";
 
 export default function Index() {
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [toolsLoading, setToolsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<Section>("catalog");
   const [activeCategory, setActiveCategory] = useState("Все");
   const [priceRange, setPriceRange] = useState([0, 1200]);
@@ -43,6 +42,18 @@ export default function Index() {
   const [formPhone, setFormPhone] = useState("");
   const [formMessage, setFormMessage] = useState("");
   const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  useEffect(() => {
+    fetch(API_URL)
+      .then((r) => r.json())
+      .then((data) => setTools(data))
+      .catch(() => {})
+      .finally(() => setToolsLoading(false));
+  }, []);
+
+  const categories = ["Все", ...Array.from(new Set(tools.map((t) => t.category)))];
+  const maxPrice = tools.length > 0 ? Math.max(...tools.map((t) => t.price)) : 1200;
+  const CATEGORIES = categories.length > 1 ? categories : DEFAULT_CATEGORIES;
 
   const handleSubmit = async () => {
     if (!formName.trim() || !formPhone.trim()) return;
@@ -66,7 +77,7 @@ export default function Index() {
     }
   };
 
-  const filtered = TOOLS.filter((t) => {
+  const filtered = tools.filter((t) => {
     if (activeCategory !== "Все" && t.category !== activeCategory) return false;
     if (t.price < priceRange[0] || t.price > priceRange[1]) return false;
     if (onlyAvailable && !t.available) return false;
@@ -211,7 +222,7 @@ export default function Index() {
                 </div>
                 <Slider
                   min={0}
-                  max={1200}
+                  max={maxPrice}
                   step={50}
                   value={priceRange}
                   onValueChange={(v) => setPriceRange(v)}
@@ -232,7 +243,7 @@ export default function Index() {
 
               <div className="pt-2 border-t border-border">
                 <p className="text-xs text-muted-foreground">
-                  Показано: <span className="font-semibold text-foreground">{filtered.length}</span> из {TOOLS.length}
+                  Показано: <span className="font-semibold text-foreground">{filtered.length}</span> из {tools.length}
                 </p>
               </div>
             </div>
@@ -240,7 +251,20 @@ export default function Index() {
 
           {/* Grid */}
           <div className="flex-1">
-            {filtered.length === 0 ? (
+            {toolsLoading ? (
+              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-card border border-border rounded-2xl overflow-hidden animate-pulse">
+                    <div className="aspect-[4/3] bg-secondary" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-3 bg-secondary rounded w-1/3" />
+                      <div className="h-4 bg-secondary rounded w-2/3" />
+                      <div className="h-4 bg-secondary rounded w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <Icon name="SearchX" size={48} className="text-muted-foreground mb-4" />
                 <p className="text-muted-foreground text-lg">Ничего не найдено</p>
@@ -537,12 +561,20 @@ export default function Index() {
             ПроИнструмент
           </div>
           <p className="text-sm text-muted-foreground">© 2026 ПроИнструмент. Прокат инструментов.</p>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             {navLinks.map((l) => (
               <button key={l.id} onClick={() => scrollToSection(l.id)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 {l.label}
               </button>
             ))}
+            <a
+              href="/admin"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              title="Панель управления"
+            >
+              <Icon name="Settings" size={14} />
+              Управление
+            </a>
           </div>
         </div>
       </footer>

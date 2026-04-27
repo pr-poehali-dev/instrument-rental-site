@@ -1,0 +1,23 @@
+[
+  {
+    "name": "GET all tools",
+    "httpMethod": "GET",
+    "path": "/tools",
+    "body": null,
+    "expectedStatus": 200
+  },
+  {
+    "name": "POST create tool",
+    "httpMethod": "POST",
+    "path": "/tools",
+    "body": {
+      "name": "Тестовый инструмент",
+      "category": "Электроинструмент",
+      "price": 100,
+      "available": true,
+      "image": "",
+      "description": "Тест"
+    },
+    "expectedStatus": 201
+  }
+]
