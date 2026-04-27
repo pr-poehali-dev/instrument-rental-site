@@ -30,12 +30,41 @@ const navLinks: { id: Section; label: string }[] = [
   { id: "contacts", label: "Контакты" },
 ];
 
+const EMAIL_URL = "https://functions.poehali.dev/cacde10c-23c7-4586-920f-143e6d430786";
+
 export default function Index() {
   const [activeSection, setActiveSection] = useState<Section>("catalog");
   const [activeCategory, setActiveCategory] = useState("Все");
   const [priceRange, setPriceRange] = useState([0, 1200]);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [formName, setFormName] = useState("");
+  const [formPhone, setFormPhone] = useState("");
+  const [formMessage, setFormMessage] = useState("");
+  const [formStatus, setFormStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleSubmit = async () => {
+    if (!formName.trim() || !formPhone.trim()) return;
+    setFormStatus("loading");
+    try {
+      const res = await fetch(EMAIL_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: formName, phone: formPhone, message: formMessage }),
+      });
+      if (res.ok) {
+        setFormStatus("success");
+        setFormName("");
+        setFormPhone("");
+        setFormMessage("");
+      } else {
+        setFormStatus("error");
+      }
+    } catch {
+      setFormStatus("error");
+    }
+  };
 
   const filtered = TOOLS.filter((t) => {
     if (activeCategory !== "Все" && t.category !== activeCategory) return false;
@@ -391,23 +420,71 @@ export default function Index() {
 
           <div className="bg-card border border-border rounded-2xl p-8 max-w-xl">
             <h3 className="font-bold text-foreground mb-6">Оставить заявку</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-foreground block mb-1.5">Ваше имя</label>
-                <input type="text" placeholder="Иван Иванов" className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground" />
+            {formStatus === "success" ? (
+              <div className="flex flex-col items-center py-8 text-center gap-4 animate-fade-in">
+                <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+                  <Icon name="CheckCircle" size={28} className="text-green-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground text-lg mb-1">Заявка отправлена!</p>
+                  <p className="text-sm text-muted-foreground">Мы свяжемся с вами в ближайшее время.</p>
+                </div>
+                <button onClick={() => setFormStatus("idle")} className="text-sm text-muted-foreground underline">
+                  Отправить ещё одну
+                </button>
               </div>
-              <div>
-                <label className="text-sm font-medium text-foreground block mb-1.5">Телефон</label>
-                <input type="tel" placeholder="+7 (___) ___-__-__" className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground" />
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1.5">Ваше имя *</label>
+                  <input
+                    type="text"
+                    placeholder="Иван Иванов"
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1.5">Телефон *</label>
+                  <input
+                    type="tel"
+                    placeholder="+7 (___) ___-__-__"
+                    value={formPhone}
+                    onChange={(e) => setFormPhone(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1.5">Что нужно взять?</label>
+                  <textarea
+                    placeholder="Опишите, какой инструмент и на сколько дней..."
+                    rows={3}
+                    value={formMessage}
+                    onChange={(e) => setFormMessage(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground resize-none"
+                  />
+                </div>
+                {formStatus === "error" && (
+                  <p className="text-sm text-red-600 flex items-center gap-2">
+                    <Icon name="AlertCircle" size={14} />
+                    Ошибка отправки. Попробуйте ещё раз или позвоните нам.
+                  </p>
+                )}
+                <Button
+                  onClick={handleSubmit}
+                  disabled={formStatus === "loading" || !formName.trim() || !formPhone.trim()}
+                  className="w-full bg-foreground text-background hover:bg-foreground/90 font-semibold disabled:opacity-50"
+                >
+                  {formStatus === "loading" ? (
+                    <span className="flex items-center gap-2">
+                      <Icon name="Loader" size={16} className="animate-spin" />
+                      Отправляем...
+                    </span>
+                  ) : "Отправить заявку"}
+                </Button>
               </div>
-              <div>
-                <label className="text-sm font-medium text-foreground block mb-1.5">Что нужно взять?</label>
-                <textarea placeholder="Опишите, какой инструмент и на сколько дней..." rows={3} className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 placeholder:text-muted-foreground resize-none" />
-              </div>
-              <Button className="w-full bg-foreground text-background hover:bg-foreground/90 font-semibold">
-                Отправить заявку
-              </Button>
-            </div>
+            )}
           </div>
         </div>
       </section>
