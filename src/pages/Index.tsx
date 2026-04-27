@@ -349,7 +349,7 @@ export default function Index() {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-card border border-border rounded-2xl p-6">
             <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
               <Icon name="Info" size={18} className="text-accent" />
@@ -358,7 +358,6 @@ export default function Index() {
             <ul className="space-y-3 text-sm text-muted-foreground">
               {[
                 "Минимальный срок аренды — 1 сутки",
-                "Оплата наличными или картой",
                 "При первом обращении необходим паспорт",
                 "Скидка 10% при аренде от 7 дней",
                 "Инструмент выдаётся в рабочем состоянии",
@@ -387,6 +386,25 @@ export default function Index() {
                 <li key={item} className="flex items-start gap-2">
                   <Icon name="Minus" size={14} className="text-muted-foreground mt-0.5 shrink-0" />
                   {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-card border border-border rounded-2xl p-6">
+            <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+              <Icon name="CreditCard" size={18} className="text-accent" />
+              Форма оплаты
+            </h3>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              {[
+                { icon: "Banknote", label: "Наличными при получении" },
+                { icon: "CreditCard", label: "Банковской картой" },
+                { icon: "Building2", label: "По расчётному счёту (для юрлиц)" },
+              ].map((item) => (
+                <li key={item.label} className="flex items-center gap-2">
+                  <Icon name={item.icon} size={14} className="text-green-600 shrink-0" />
+                  {item.label}
                 </li>
               ))}
             </ul>
