@@ -143,12 +143,12 @@ export default function Admin() {
     setError("");
     setSuccess("");
     try {
-      const url = editingId ? `${API_URL}/${editingId}` : API_URL;
       const method = editingId ? "PUT" : "POST";
-      const res = await fetch(url, {
+      const payload = editingId ? { ...form, id: editingId } : form;
+      const res = await fetch(API_URL, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const d = await res.json();
@@ -171,7 +171,11 @@ export default function Admin() {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch(`${API_URL}/${deleteId}`, { method: "DELETE" });
+      const res = await fetch(API_URL, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: deleteId }),
+      });
       if (!res.ok) throw new Error("Ошибка удаления");
       setSuccess("Инструмент удалён");
       setDeleteId(null);

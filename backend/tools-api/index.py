@@ -22,21 +22,28 @@ def handler(event: dict, context) -> dict:
     if method == "OPTIONS":
         return {"statusCode": 200, "headers": CORS_HEADERS, "body": ""}
 
-    path = event.get("path", "/")
-    # Extract tool id from path like /tools/123
-    path_parts = [p for p in path.split("/") if p]
-    tool_id = None
-    if len(path_parts) >= 2 and path_parts[-1].isdigit():
-        tool_id = int(path_parts[-1])
+    body = json.loads(event.get("body") or "{}")
+    params = event.get("queryStringParameters") or {}
+
+    # tool id from body, query param or path
+    tool_id = body.get("id") or params.get("id")
+    if not tool_id:
+        path = event.get("path", "/")
+        path_parts = [p for p in path.split("/") if p]
+        if path_parts and path_parts[-1].isdigit():
+            tool_id = path_parts[-1]
+    if tool_id is not None:
+        try:
+            tool_id = int(tool_id)
+        except (ValueError, TypeError):
+            tool_id = None
 
     try:
         if method == "GET":
             return get_tools()
         elif method == "POST":
-            body = json.loads(event.get("body") or "{}")
             return create_tool(body)
         elif method == "PUT" and tool_id:
-            body = json.loads(event.get("body") or "{}")
             return update_tool(tool_id, body)
         elif method == "DELETE" and tool_id:
             return delete_tool(tool_id)
