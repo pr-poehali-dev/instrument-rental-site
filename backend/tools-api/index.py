@@ -1,7 +1,7 @@
 """CRUD API для управления инструментами проката"""
 import json
 import os
-import psycopg
+import psycopg2
 
 SCHEMA = "t_p87698122_instrument_rental_si"
 
@@ -13,7 +13,14 @@ CORS_HEADERS = {
 
 
 def get_db_conn():
-    return psycopg.connect(os.environ["DATABASE_URL"])
+    return psycopg2.connect(os.environ["DATABASE_URL"])
+
+
+def q(value):
+    """Экранирование строки для безопасной подстановки в SQL"""
+    if value is None:
+        return "NULL"
+    return "'" + str(value).replace("'", "''") + "'"
 
 
 def handler(event: dict, context) -> dict:
@@ -25,7 +32,6 @@ def handler(event: dict, context) -> dict:
     body = json.loads(event.get("body") or "{}")
     params = event.get("queryStringParameters") or {}
 
-    # tool id from body, query param or path
     tool_id = body.get("id") or params.get("id")
     if not tool_id:
         path = event.get("path", "/")
@@ -89,13 +95,15 @@ def create_tool(body):
     if not name or not category:
         return error(400, "Название и категория обязательны")
 
+    sql = (
+        f"INSERT INTO {SCHEMA}.tools (name, category, price, available, image, description, is_hit) "
+        f"VALUES ({q(name)}, {q(category)}, {price}, {available}, {q(image)}, {q(description)}, {is_hit}) "
+        f"RETURNING id"
+    )
+
     with get_db_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                f"""INSERT INTO {SCHEMA}.tools (name, category, price, available, image, description, is_hit)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id""",
-                (name, category, price, available, image, description, is_hit),
-            )
+            cur.execute(sql)
             new_id = cur.fetchone()[0]
         conn.commit()
 
@@ -114,14 +122,16 @@ def update_tool(tool_id, body):
     if not name or not category:
         return error(400, "Название и категория обязательны")
 
+    sql = (
+        f"UPDATE {SCHEMA}.tools SET "
+        f"name={q(name)}, category={q(category)}, price={price}, available={available}, "
+        f"image={q(image)}, description={q(description)}, is_hit={is_hit}, updated_at=NOW() "
+        f"WHERE id={int(tool_id)}"
+    )
+
     with get_db_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                f"""UPDATE {SCHEMA}.tools
-                    SET name=%s, category=%s, price=%s, available=%s, image=%s, description=%s, is_hit=%s, updated_at=NOW()
-                    WHERE id=%s""",
-                (name, category, price, available, image, description, is_hit, tool_id),
-            )
+            cur.execute(sql)
             if cur.rowcount == 0:
                 return error(404, "Инструмент не найден")
         conn.commit()
@@ -132,7 +142,7 @@ def update_tool(tool_id, body):
 def delete_tool(tool_id):
     with get_db_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute(f"DELETE FROM {SCHEMA}.tools WHERE id=%s", (tool_id,))
+            cur.execute(f"DELETE FROM {SCHEMA}.tools WHERE id={int(tool_id)}")
             if cur.rowcount == 0:
                 return error(404, "Инструмент не найден")
         conn.commit()
