@@ -188,10 +188,10 @@ export default function Admin() {
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <a href="/" className="flex items-center gap-2 font-black text-xl tracking-tight text-foreground">
-              <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center">
+              <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center shrink-0">
                 <Icon name="Wrench" size={16} className="text-background" />
               </div>
-              ПроИнструмент
+              <span className="text-base sm:text-xl leading-tight">Прокат инструментов в Нагаево</span>
             </a>
             <span className="hidden sm:block text-muted-foreground">/</span>
             <span className="hidden sm:block text-sm font-semibold text-muted-foreground">Панель управления</span>

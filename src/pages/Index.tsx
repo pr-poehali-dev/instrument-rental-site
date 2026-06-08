@@ -546,12 +546,12 @@ export default function Index() {
       <footer className="border-t border-border py-8">
         <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-black text-foreground">
-            <div className="w-6 h-6 bg-foreground rounded flex items-center justify-center">
+            <div className="w-6 h-6 bg-foreground rounded flex items-center justify-center shrink-0">
               <Icon name="Wrench" size={12} className="text-background" />
             </div>
-            ПроИнструмент
+            Прокат инструментов в Нагаево
           </div>
-          <p className="text-sm text-muted-foreground">© 2026 ПроИнструмент. Прокат инструментов.</p>
+          <p className="text-sm text-muted-foreground">© 2026 Прокат инструментов в Нагаево.</p>
           <div className="flex gap-4 items-center">
             {navLinks.map((l) => (
               <button key={l.id} onClick={() => scrollToSection(l.id)} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
