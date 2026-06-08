@@ -98,10 +98,10 @@ export default function Index() {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <button onClick={() => scrollToSection("catalog")} className="flex items-center gap-2 font-black text-xl tracking-tight text-foreground">
-            <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center">
+            <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center shrink-0">
               <Icon name="Wrench" size={16} className="text-background" />
             </div>
-            ПроИнструмент
+            <span className="text-base sm:text-xl leading-tight">Прокат инструментов в Нагаево</span>
           </button>
 
           <nav className="hidden md:flex items-center gap-1">
