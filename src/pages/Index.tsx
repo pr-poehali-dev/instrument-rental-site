@@ -37,6 +37,7 @@ export default function Index() {
   const [priceRange, setPriceRange] = useState([0, 1200]);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
 
   const [formName, setFormName] = useState("");
   const [formPhone, setFormPhone] = useState("");
@@ -90,6 +91,12 @@ export default function Index() {
     setTimeout(() => {
       document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 50);
+  };
+
+  const bookTool = (tool: Tool) => {
+    setSelectedTool(null);
+    setFormMessage(`Хочу взять в аренду: ${tool.name} (${tool.price} ₽/сутки)`);
+    scrollToSection("contacts");
   };
 
   return (
@@ -272,7 +279,8 @@ export default function Index() {
                 {filtered.map((tool, i) => (
                   <div
                     key={tool.id}
-                    className="bg-card border border-border rounded-2xl overflow-hidden group hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 animate-slide-up"
+                    onClick={() => setSelectedTool(tool)}
+                    className="bg-card border border-border rounded-2xl overflow-hidden group hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 animate-slide-up cursor-pointer"
                     style={{ animationDelay: `${i * 0.05}s` }}
                   >
                     <div className="aspect-[4/3] overflow-hidden bg-secondary relative">
@@ -297,6 +305,7 @@ export default function Index() {
                         <Button
                           size="sm"
                           disabled={!tool.available}
+                          onClick={(e) => { e.stopPropagation(); setSelectedTool(tool); }}
                           className={`text-xs font-semibold ${tool.available ? "bg-foreground text-background hover:bg-foreground/90" : "opacity-40 cursor-not-allowed"}`}
                         >
                           Забронировать
@@ -541,6 +550,62 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* TOOL DETAIL MODAL */}
+      {selectedTool && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
+            onClick={() => setSelectedTool(null)}
+          />
+          <div className="relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-slide-up">
+            <button
+              onClick={() => setSelectedTool(null)}
+              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-background/80 backdrop-blur flex items-center justify-center text-foreground hover:bg-background transition-colors"
+            >
+              <Icon name="X" size={18} />
+            </button>
+
+            <div className="aspect-[16/10] overflow-hidden bg-secondary">
+              <img src={selectedTool.image} alt={selectedTool.name} className="w-full h-full object-cover" />
+            </div>
+
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-medium text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">{selectedTool.category}</span>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${selectedTool.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                  {selectedTool.available ? "В наличии" : "Занят"}
+                </span>
+              </div>
+
+              <h2 className="text-2xl font-black text-foreground mb-3 leading-tight">{selectedTool.name}</h2>
+
+              {selectedTool.description && (
+                <p className="text-muted-foreground leading-relaxed mb-6">{selectedTool.description}</p>
+              )}
+
+              <div className="flex items-end justify-between gap-4 pt-4 border-t border-border">
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Стоимость аренды</div>
+                  <div>
+                    <span className="text-3xl font-black text-foreground">{selectedTool.price} ₽</span>
+                    <span className="text-sm text-muted-foreground ml-1">/ сутки</span>
+                  </div>
+                </div>
+                <Button
+                  size="lg"
+                  disabled={!selectedTool.available}
+                  onClick={() => bookTool(selectedTool)}
+                  className={`font-semibold gap-2 ${selectedTool.available ? "bg-foreground text-background hover:bg-foreground/90" : "opacity-40 cursor-not-allowed"}`}
+                >
+                  <Icon name="Calendar" size={16} />
+                  Забронировать
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* FOOTER */}
       <footer className="border-t border-border py-8">
