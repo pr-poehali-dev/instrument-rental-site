@@ -157,20 +157,12 @@ export default function Index() {
                 Связаться
               </Button>
             </div>
-            <div className="mt-10 flex gap-8">
-              {[{ v: "120+", l: "инструментов" }, { v: "5 лет", l: "на рынке" }, { v: "4.9", l: "рейтинг" }].map((s) => (
-                <div key={s.l}>
-                  <div className="text-2xl font-black text-foreground">{s.v}</div>
-                  <div className="text-sm text-muted-foreground">{s.l}</div>
-                </div>
-              ))}
-            </div>
           </div>
 
           <div className="relative animate-fade-in stagger-2">
             <div className="aspect-[4/3] rounded-2xl overflow-hidden">
               <img
-                src="https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/files/6c221248-6ee7-4c6f-be5d-20d8732376b9.jpg"
+                src="https://cdn.poehali.dev/projects/23078fca-3765-4ec6-b43a-c83443e37571/bucket/107b8abb-79d0-4b86-88f6-ab6541491b4d.png"
                 alt="Склад инструментов"
                 className="w-full h-full object-cover"
               />
@@ -181,7 +173,7 @@ export default function Index() {
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">Статус</div>
-                <div className="text-sm font-semibold text-foreground">87 позиций доступно</div>
+                <div className="text-sm font-semibold text-foreground">{tools.filter((t) => t.available).length} позиций доступно</div>
               </div>
             </div>
           </div>
@@ -293,7 +285,10 @@ export default function Index() {
                     </div>
                     <div className="p-4">
                       <div className="text-xs text-muted-foreground mb-1 font-medium">{tool.category}</div>
-                      <h3 className="font-semibold text-foreground text-sm leading-snug mb-3">{tool.name}</h3>
+                      <h3 className="font-semibold text-foreground text-sm leading-snug mb-1.5">{tool.name}</h3>
+                      {tool.description && (
+                        <p className="text-xs text-muted-foreground leading-relaxed mb-3 line-clamp-2">{tool.description}</p>
+                      )}
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="text-xl font-black text-foreground">{tool.price} ₽</span>
@@ -325,17 +320,14 @@ export default function Index() {
               <h2 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
                 Профессиональный инструмент без лишних трат
               </h2>
-              <p className="text-background/70 leading-relaxed mb-6">
-                Мы работаем с 2019 года и помогаем частным мастерам и строительным бригадам решать задачи без покупки дорогостоящего оборудования. Весь инструмент проходит техническое обслуживание перед каждой выдачей.
-              </p>
               <p className="text-background/70 leading-relaxed">
-                Наш склад расположен в удобном месте, работаем без выходных. Консультируем по выбору подходящего инструмента для конкретной задачи.
+                Мы помогаем частным мастерам и строительным бригадам решать задачи без покупки дорогостоящего оборудования. Весь инструмент проходит техническое обслуживание перед каждой выдачей.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: "Wrench", title: "120+ позиций", desc: "Широкий ассортимент для любых работ" },
+                { icon: "Wrench", title: "Широкий ассортимент", desc: "Инструмент для любых работ" },
                 { icon: "Shield", title: "Техосмотр", desc: "Каждый инструмент проверяется перед выдачей" },
                 { icon: "Clock", title: "Работаем 7/7", desc: "Без выходных с 8:00 до 21:00" },
                 { icon: "Truck", title: "Доставка", desc: "Привезём инструмент на объект" },
@@ -405,7 +397,6 @@ export default function Index() {
                 "При утере или поломке — возмещение стоимости",
                 "Запрещена передача третьим лицам",
                 "Просрочка — оплата за каждые сутки",
-                "Страхование инструмента — по запросу",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2">
                   <Icon name="Minus" size={14} className="text-muted-foreground mt-0.5 shrink-0" />
