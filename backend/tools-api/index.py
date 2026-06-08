@@ -50,7 +50,7 @@ def get_tools():
     with get_db_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                f"SELECT id, name, category, price, available, image, description, created_at FROM {SCHEMA}.tools ORDER BY id"
+                f"SELECT id, name, category, price, available, image, description, is_hit, created_at FROM {SCHEMA}.tools ORDER BY id"
             )
             rows = cur.fetchall()
             tools = [
@@ -62,7 +62,8 @@ def get_tools():
                     "available": r[4],
                     "image": r[5],
                     "description": r[6],
-                    "created_at": r[7].isoformat() if r[7] else None,
+                    "is_hit": r[7],
+                    "created_at": r[8].isoformat() if r[8] else None,
                 }
                 for r in rows
             ]
@@ -76,6 +77,7 @@ def create_tool(body):
     available = bool(body.get("available", True))
     image = (body.get("image") or "").strip()
     description = (body.get("description") or "").strip()
+    is_hit = bool(body.get("is_hit", False))
 
     if not name or not category:
         return error(400, "Название и категория обязательны")
@@ -83,9 +85,9 @@ def create_tool(body):
     with get_db_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                f"""INSERT INTO {SCHEMA}.tools (name, category, price, available, image, description)
-                    VALUES (%s, %s, %s, %s, %s, %s) RETURNING id""",
-                (name, category, price, available, image, description),
+                f"""INSERT INTO {SCHEMA}.tools (name, category, price, available, image, description, is_hit)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+                (name, category, price, available, image, description, is_hit),
             )
             new_id = cur.fetchone()[0]
         conn.commit()
@@ -100,6 +102,7 @@ def update_tool(tool_id, body):
     available = bool(body.get("available", True))
     image = (body.get("image") or "").strip()
     description = (body.get("description") or "").strip()
+    is_hit = bool(body.get("is_hit", False))
 
     if not name or not category:
         return error(400, "Название и категория обязательны")
@@ -108,9 +111,9 @@ def update_tool(tool_id, body):
         with conn.cursor() as cur:
             cur.execute(
                 f"""UPDATE {SCHEMA}.tools
-                    SET name=%s, category=%s, price=%s, available=%s, image=%s, description=%s, updated_at=NOW()
+                    SET name=%s, category=%s, price=%s, available=%s, image=%s, description=%s, is_hit=%s, updated_at=NOW()
                     WHERE id=%s""",
-                (name, category, price, available, image, description, tool_id),
+                (name, category, price, available, image, description, is_hit, tool_id),
             )
             if cur.rowcount == 0:
                 return error(404, "Инструмент не найден")

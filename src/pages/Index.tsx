@@ -16,6 +16,7 @@ interface Tool {
   available: boolean;
   image: string;
   description: string;
+  is_hit: boolean;
 }
 
 type Section = "catalog" | "about" | "terms" | "contacts";
@@ -285,6 +286,14 @@ export default function Index() {
                   >
                     <div className="aspect-[4/3] overflow-hidden bg-secondary relative">
                       <img src={tool.image} alt={tool.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      {tool.is_hit && (
+                        <div className="absolute top-3 left-3">
+                          <span className="flex items-center gap-1 text-xs font-bold uppercase bg-orange-500 text-white px-2.5 py-1 rounded-full shadow-md">
+                            <Icon name="Flame" size={12} />
+                            ХИТ
+                          </span>
+                        </div>
+                      )}
                       <div className="absolute top-3 right-3">
                         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${tool.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
                           {tool.available ? "В наличии" : "Занят"}
@@ -566,8 +575,16 @@ export default function Index() {
               <Icon name="X" size={18} />
             </button>
 
-            <div className="aspect-[16/10] overflow-hidden bg-secondary">
+            <div className="aspect-[16/10] overflow-hidden bg-secondary relative">
               <img src={selectedTool.image} alt={selectedTool.name} className="w-full h-full object-cover" />
+              {selectedTool.is_hit && (
+                <div className="absolute top-4 left-4">
+                  <span className="flex items-center gap-1 text-xs font-bold uppercase bg-orange-500 text-white px-2.5 py-1 rounded-full shadow-md">
+                    <Icon name="Flame" size={12} />
+                    ХИТ
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="p-6">

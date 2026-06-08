@@ -20,6 +20,7 @@ interface Tool {
   available: boolean;
   image: string;
   description: string;
+  is_hit: boolean;
 }
 
 const emptyForm = (): Omit<Tool, "id"> => ({
@@ -29,6 +30,7 @@ const emptyForm = (): Omit<Tool, "id"> => ({
   available: true,
   image: "",
   description: "",
+  is_hit: false,
 });
 
 export default function Admin() {
@@ -87,6 +89,7 @@ export default function Admin() {
       available: tool.available,
       image: tool.image,
       description: tool.description,
+      is_hit: tool.is_hit,
     });
     setImagePreview(tool.image || "");
     setError("");
@@ -291,7 +294,15 @@ export default function Admin() {
                               </div>
                             )}
                           </div>
-                          <span className="font-medium text-foreground leading-snug">{tool.name}</span>
+                          <span className="font-medium text-foreground leading-snug flex items-center gap-1.5">
+                            {tool.name}
+                            {tool.is_hit && (
+                              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold uppercase bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">
+                                <Icon name="Flame" size={10} />
+                                ХИТ
+                              </span>
+                            )}
+                          </span>
                         </div>
                       </td>
                       <td className="px-4 py-4 text-muted-foreground">{tool.category}</td>
@@ -457,6 +468,23 @@ export default function Admin() {
                     {form.available ? "В наличии" : "Занят"}
                   </button>
                 </div>
+              </div>
+
+              {/* Hit badge */}
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Метка «ХИТ»</label>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, is_hit: !form.is_hit })}
+                  className={`w-full flex items-center justify-center gap-2 border rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors ${
+                    form.is_hit
+                      ? "border-orange-300 bg-orange-50 text-orange-600"
+                      : "border-border bg-background text-muted-foreground"
+                  }`}
+                >
+                  <Icon name="Flame" size={15} />
+                  {form.is_hit ? "Помечен как ХИТ" : "Отметить как ХИТ"}
+                </button>
               </div>
 
               {/* Image upload */}
