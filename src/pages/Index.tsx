@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 
 const API_URL = "https://functions.poehali.dev/e8dc8261-8236-4252-aa2d-74a038fc598d";
 
@@ -35,7 +34,6 @@ export default function Index() {
   const [toolsLoading, setToolsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<Section>("catalog");
   const [activeCategory, setActiveCategory] = useState("Все");
-  const [priceRange, setPriceRange] = useState([0, 1200]);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
@@ -54,7 +52,6 @@ export default function Index() {
   }, []);
 
   const categories = ["Все", ...Array.from(new Set(tools.map((t) => t.category)))];
-  const maxPrice = tools.length > 0 ? Math.max(...tools.map((t) => t.price)) : 1200;
   const CATEGORIES = categories.length > 1 ? categories : DEFAULT_CATEGORIES;
 
   const handleSubmit = async () => {
@@ -81,7 +78,6 @@ export default function Index() {
 
   const filtered = tools.filter((t) => {
     if (activeCategory !== "Все" && t.category !== activeCategory) return false;
-    if (t.price < priceRange[0] || t.price > priceRange[1]) return false;
     if (onlyAvailable && !t.available) return false;
     return true;
   });
@@ -192,7 +188,7 @@ export default function Index() {
       <section id="catalog" className="max-w-6xl mx-auto px-4 py-16">
         <div className="mb-10">
           <h2 className="text-3xl font-black mb-2 text-foreground">Каталог</h2>
-          <p className="text-muted-foreground">Фильтруйте по категории, цене и доступности</p>
+          <p className="text-muted-foreground">Фильтруйте по категории и доступности</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -212,22 +208,6 @@ export default function Index() {
                     </button>
                   ))}
                 </div>
-              </div>
-
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Цена / сутки</div>
-                <div className="flex justify-between text-sm font-medium mb-3 text-foreground">
-                  <span>{priceRange[0]} ₽</span>
-                  <span>{priceRange[1]} ₽</span>
-                </div>
-                <Slider
-                  min={0}
-                  max={maxPrice}
-                  step={50}
-                  value={priceRange}
-                  onValueChange={(v) => setPriceRange(v)}
-                  className="w-full"
-                />
               </div>
 
               <div>
@@ -269,7 +249,7 @@ export default function Index() {
                 <Icon name="SearchX" size={48} className="text-muted-foreground mb-4" />
                 <p className="text-muted-foreground text-lg">Ничего не найдено</p>
                 <button
-                  onClick={() => { setActiveCategory("Все"); setPriceRange([0, 1200]); setOnlyAvailable(false); }}
+                  onClick={() => { setActiveCategory("Все"); setOnlyAvailable(false); }}
                   className="mt-4 text-sm underline text-foreground"
                 >
                   Сбросить фильтры
